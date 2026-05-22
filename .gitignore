@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Streamlit secrets (NEVER commit)
+.streamlit/secrets.toml
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ruff
+.ruff_cache/
+
+# pytest
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# Test results
+tests/results/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+
+# Logs
+*.log
+
+# Claude Code / AI build files (not needed to run the app)
+CLAUDE.md
+BOOTSTRAP_PROMPT.md
+SPEC.md
+SPEC_TEMPLATE.md
+README.md
+claude.json
+.claude/

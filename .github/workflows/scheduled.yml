@@ -1,0 +1,110 @@
+name: Scheduled Jobs
+
+on:
+  schedule:
+    - cron: '0 * * * *'      # Hourly: refresh_pricing
+    - cron: '0 9 * * *'      # Daily 9am UTC: refresh_currency
+    - cron: '0 3 * * *'      # Daily 3am UTC: cleanup_guests
+    - cron: '*/15 * * * *'   # Every 15min: cleanup_abandoned
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Which job to run manually'
+        required: true
+        default: 'refresh_pricing'
+        type: choice
+        options:
+          - refresh_pricing
+          - refresh_currency
+          - cleanup_guests
+          - cleanup_abandoned
+
+jobs:
+  refresh_pricing:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'refresh_pricing') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 * * * *')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Refresh model pricing
+        run: python scripts/refresh_pricing.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+  refresh_currency:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'refresh_currency') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 9 * * *')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Refresh currency rates
+        run: python scripts/refresh_currency.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+  cleanup_guests:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'cleanup_guests') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 3 * * *')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Clean up expired guest sessions
+        run: python scripts/cleanup_guests.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+  cleanup_abandoned:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'cleanup_abandoned') ||
+      (github.event_name == 'schedule' && github.event.schedule == '*/15 * * * *')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Clean up abandoned sessions
+        run: python scripts/cleanup_abandoned.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
