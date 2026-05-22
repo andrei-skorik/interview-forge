@@ -19,9 +19,9 @@ if not session_id_str:
     session_id_str = st.session_state.get("current_session_id")
 
 if not session_id_str:
-    st.error("Missing session_id parameter.")
-    if st.button("← Back to home"):
-        st.switch_page("app.py")
+    st.info("Open a report from the Dashboard by clicking 'View report' on a completed session.")
+    if st.button("→ Go to Dashboard"):
+        st.switch_page("pages/1_📊_Dashboard.py")
     st.stop()
 
 # ── Load report ────────────────────────────────────────────────────────────────
