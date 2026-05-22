@@ -13,14 +13,13 @@ logger = structlog.get_logger(__name__)
 
 def get_user_client(access_token: str) -> Client:
     """Create a Supabase client that uses the user's JWT for RLS enforcement."""
-    from supabase.lib.client_options import ClientOptions
-
     from supabase import create_client
 
     url: str = st.secrets["SUPABASE_URL"]
     anon_key: str = st.secrets["SUPABASE_ANON_KEY"]
-    options = ClientOptions(headers={"Authorization": f"Bearer {access_token}"})
-    return create_client(url, anon_key, options=options)
+    client = create_client(url, anon_key)
+    client.postgrest.auth(access_token)
+    return client
 
 
 @st.cache_resource
