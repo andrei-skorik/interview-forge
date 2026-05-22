@@ -19,12 +19,9 @@ CREATE TABLE IF NOT EXISTS question_embeddings (
   UNIQUE(message_id)
 );
 
--- ivfflat index for cosine similarity search
--- lists=100 is appropriate for up to ~10K embeddings; REINDEX periodically
-CREATE INDEX IF NOT EXISTS idx_question_embeddings_vector
-  ON question_embeddings
-  USING ivfflat (embedding vector_cosine_ops)
-  WITH (lists = 100);
+-- Note: pgvector index types (ivfflat/hnsw) support max 2000 dimensions.
+-- qwen3-embedding-8b uses 4096 dims, so we skip the ANN index.
+-- Similarity search falls back to sequential scan (fine for MVP scale).
 
 CREATE INDEX IF NOT EXISTS idx_question_embeddings_user ON question_embeddings(user_id);
 CREATE INDEX IF NOT EXISTS idx_question_embeddings_domain ON question_embeddings(user_id, domain);
