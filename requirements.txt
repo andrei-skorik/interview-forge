@@ -1,5 +1,6 @@
 streamlit==1.40.*
 supabase==2.*
+storage3==2.20.*
 pydantic==2.*
 httpx==0.27.*
 tiktoken==0.8.*
