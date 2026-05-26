@@ -190,22 +190,6 @@ else:  # landing mode
     )
     st.caption(f"{len(jd)}/10,000 characters · After pasting, press **Ctrl+Enter** to apply")
 
-    if jd and len(jd) >= 50:
-        with st.expander("📊 Job analysis preview", expanded=False):
-            with st.spinner("Analysing..."):
-                try:
-                    analysis = analyze_jd_cached(jd)
-                    col_a, col_b = st.columns(2)
-                    with col_a:
-                        st.metric("Level", analysis.level.title())
-                        st.metric("Domain", analysis.suggested_domain.replace("_", " ").title())
-                    with col_b:
-                        st.markdown("**Stack detected:**")
-                        for tech in analysis.stack[:5]:
-                            st.badge(tech)
-                except Exception:
-                    st.warning("Could not analyse JD preview.")
-
     start_disabled = not jd or len(jd) < 50
     if st.button(
         "🚀 Start interview",
@@ -244,3 +228,20 @@ else:  # landing mode
                 st.error(f"Service temporarily unavailable: {exc.user_message}")
             except LLMTimeoutError:
                 st.error("⏱️ Took too long to start. Please try again.")
+
+    # ── JD analysis preview (below the button so it never shifts button position) ──
+    if jd and len(jd) >= 50:
+        with st.expander("📊 Job analysis preview", expanded=False):
+            with st.spinner("Analysing..."):
+                try:
+                    analysis = analyze_jd_cached(jd)
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        st.metric("Level", analysis.level.title())
+                        st.metric("Domain", analysis.suggested_domain.replace("_", " ").title())
+                    with col_b:
+                        st.markdown("**Stack detected:**")
+                        for tech in analysis.stack[:5]:
+                            st.badge(tech)
+                except Exception:
+                    st.warning("Could not analyse JD preview.")
