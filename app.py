@@ -15,7 +15,9 @@ from lib.auth.session import (  # noqa: E402
     clear_session,
     get_access_token,
     get_current_user_id,
+    get_refresh_token,
     is_authenticated,
+    is_token_expired,
     set_session,
 )
 from lib.db.messages import get_messages_by_session, send_message  # noqa: E402
@@ -47,8 +49,11 @@ if "current_session_id" not in st.session_state:
 if "session_config_form" not in st.session_state:
     st.session_state["session_config_form"] = {}
 
-# Restore Supabase session from stored tokens on page reload
-if "supabase_session" in st.session_state and not is_authenticated():
+# Restore / refresh Supabase session on every page render.
+# Covers two cases:
+#   1. Page reload — session_state lost, need to restore from stored tokens
+#   2. Token expired while user is still "authenticated" in session_state
+if "supabase_session" in st.session_state and (not is_authenticated() or is_token_expired()):
     _stored = st.session_state["supabase_session"]
     try:
         _result = restore_session(
@@ -57,6 +62,8 @@ if "supabase_session" in st.session_state and not is_authenticated():
         )
         if _result:
             set_session(_result["session"], _result["user"])
+        else:
+            clear_session()
     except Exception:
         clear_session()
 

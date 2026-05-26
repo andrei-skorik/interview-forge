@@ -6,7 +6,12 @@ import datetime as dt  # noqa: E402
 from uuid import UUID  # noqa: E402
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError  # noqa: E402
 
-from lib.auth.session import get_access_token, get_current_user_id, is_authenticated  # noqa: E402
+from lib.auth.session import (  # noqa: E402
+    clear_session,
+    get_access_token,
+    get_current_user_id,
+    is_authenticated,
+)
 from lib.db.sessions import list_user_sessions  # noqa: E402
 from lib.openrouter.cost_calculator import format_eur  # noqa: E402
 from lib.schemas.session import SessionFilters  # noqa: E402
@@ -103,7 +108,14 @@ try:
         filters=filters,
     )
 except Exception as exc:
-    st.error(f"Could not load sessions: {exc}")
+    err_str = str(exc)
+    if "JWT expired" in err_str or "PGRST303" in err_str or "token is expired" in err_str.lower():
+        st.warning("⏱️ Your session has expired. Please sign in again.")
+        clear_session()
+        if st.button("🔑 Sign in", type="primary"):
+            st.switch_page("app.py")
+    else:
+        st.error(f"Could not load sessions: {exc}")
     st.stop()
 
 # ── Top metrics ────────────────────────────────────────────────────────────────

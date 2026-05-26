@@ -1,3 +1,4 @@
+import time
 from typing import Any, cast
 from uuid import UUID
 
@@ -37,6 +38,27 @@ def clear_session() -> None:
 
 def is_authenticated() -> bool:
     return get_current_user_id() is not None
+
+
+def is_token_expired() -> bool:
+    """Return True if the stored access token has expired or expires within 60 seconds."""
+    session = st.session_state.get("supabase_session")
+    if not session:
+        return True
+    expires_at = session.get("expires_at")
+    if expires_at is None:
+        return False
+    try:
+        return time.time() > float(expires_at) - 60  # 60-second buffer
+    except (TypeError, ValueError):
+        return False
+
+
+def get_refresh_token() -> str | None:
+    session = st.session_state.get("supabase_session")
+    if session:
+        return cast(str | None, session.get("refresh_token"))
+    return None
 
 
 def is_admin() -> bool:

@@ -6,7 +6,7 @@ st.set_page_config(page_title="Interview Report", page_icon="📈", layout="wide
 
 from uuid import UUID  # noqa: E402
 
-from lib.auth.session import get_access_token, get_current_user_id  # noqa: E402
+from lib.auth.session import clear_session, get_access_token, get_current_user_id  # noqa: E402
 from lib.db.evaluations import get_full_report  # noqa: E402
 from lib.ui.report import render_detailed, render_summary  # noqa: E402
 
@@ -36,6 +36,13 @@ with st.spinner("Loading report..."):
             share_token=share_token,
         )
     except Exception as exc:
+        err_str = str(exc)
+        if "JWT expired" in err_str or "PGRST303" in err_str or "token is expired" in err_str.lower():
+            st.warning("⏱️ Your session has expired. Please sign in again.")
+            clear_session()
+            if st.button("🔑 Sign in", type="primary"):
+                st.switch_page("app.py")
+            st.stop()
         st.error(f"Could not load report: {exc}")
         report = None
 
