@@ -18,10 +18,18 @@ class InterviewerStructuredResponse(BaseModel):
     internal_notes: str
 
 
+def _jd_excerpt(job_description: str, max_chars: int = 700) -> str:
+    text = job_description.strip()
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars].rsplit(" ", 1)[0] + " …"
+
+
 def build_structured_output_prompt(config: SessionConfig, jd_analysis: JDAnalysis) -> str:
     topics_str = (
         ", ".join(jd_analysis.key_topics) if jd_analysis.key_topics else "core competencies"
     )
+    jd_text = _jd_excerpt(config.job_description)
     schema = InterviewerStructuredResponse.model_json_schema()
     schema_str = json.dumps(schema, indent=2)
     return f"""You are a technical interviewer. Respond with valid JSON only, matching this schema:
@@ -32,5 +40,11 @@ The "internal_notes" field is NOT shown to the candidate — it's for your refer
 The "question" field is what you ask the candidate.
 The "hints_available" are hints you can give if the candidate struggles (keep them to yourself unless needed).
 
-Domain: {config.domain}, Difficulty: {config.difficulty}
-JD topics: {topics_str}"""
+Difficulty: {config.difficulty}
+JD topics: {topics_str}
+
+--- JOB POSTING ---
+{jd_text}
+--- END ---
+
+Base your questions on the actual role described in the job posting above."""

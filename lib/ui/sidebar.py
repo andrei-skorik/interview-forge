@@ -13,11 +13,9 @@ def render_session_config_sidebar() -> None:
     """Render interview configuration controls. Saves to st.session_state.session_config_form."""
     st.subheader("Interview Settings")
 
-    domain = st.radio(
-        "Domain",
-        options=["frontend", "backend", "data_ml", "devops", "system_design", "behavioral"],
-        format_func=lambda x: x.replace("_", " ").title(),
-        key="cfg_domain",
+    st.caption(
+        "🤖 **Domain is auto-detected from your job description** — "
+        "the interviewer will ask questions relevant to the actual role."
     )
 
     difficulty = st.select_slider(
@@ -91,7 +89,7 @@ def render_session_config_sidebar() -> None:
             )
 
     st.session_state["session_config_form"] = {
-        "domain": domain,
+        # domain is intentionally omitted — auto-detected from JD in create_session()
         "difficulty": difficulty,
         "response_length": response_length,
         "interviewer_persona": persona,

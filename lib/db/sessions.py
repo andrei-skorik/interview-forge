@@ -87,8 +87,9 @@ def create_session(
 
         raise PromptInjectionError(validation.reason)
 
-    # Analyze JD
+    # Analyze JD — detected domain always wins over sidebar selection
     jd_analysis: JDAnalysis = analyze_jd_cached(config.job_description)
+    effective_config = config.model_copy(update={"domain": jd_analysis.suggested_domain})
 
     # Rate limiting
     limiter = get_rate_limiter()
@@ -111,7 +112,7 @@ def create_session(
 
     # Build session row
     session_row: dict[str, Any] = {
-        "domain": config.domain,
+        "domain": effective_config.domain,  # JD-detected, not sidebar selection
         "difficulty": config.difficulty,
         "response_length": config.response_length,
         "interviewer_persona": config.interviewer_persona,
@@ -142,7 +143,7 @@ def create_session(
     session_id = session.id
 
     # Build system prompt and generate first question
-    system_prompt = get_interviewer_prompt(config, jd_analysis)
+    system_prompt = get_interviewer_prompt(effective_config, jd_analysis)
     messages_for_llm = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": "Please start the interview."},
@@ -213,7 +214,8 @@ def create_session(
         "session_created",
         session_id=str(session_id),
         user_id=str(user_id) if user_id else None,
-        domain=config.domain,
+        domain=effective_config.domain,
+        domain_source="jd_analysis",
     )
     return CreateSessionResult(
         session=session,

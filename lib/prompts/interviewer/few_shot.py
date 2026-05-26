@@ -20,16 +20,28 @@ Q: "Tell me about yourself."
 """
 
 
+def _jd_excerpt(job_description: str, max_chars: int = 700) -> str:
+    text = job_description.strip()
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars].rsplit(" ", 1)[0] + " …"
+
+
 def build_few_shot_prompt(config: SessionConfig, jd_analysis: JDAnalysis) -> str:
     stack_str = ", ".join(jd_analysis.stack) if jd_analysis.stack else "general tech stack"
     topics_str = (
         ", ".join(jd_analysis.key_topics) if jd_analysis.key_topics else "core competencies"
     )
-    return f"""You are a senior technical interviewer at a European tech company. Conduct a {config.difficulty} level interview for a {config.domain} role.
+    jd_text = _jd_excerpt(config.job_description)
+    return f"""You are a senior technical interviewer at a European tech company. Conduct a {config.difficulty} level interview for this specific role:
+
+--- JOB POSTING ---
+{jd_text}
+--- END ---
 
 {_FEW_SHOT_EXAMPLES}
 
-Now conduct the interview using the same style as the GOOD examples above.
+Now conduct the interview using the same style as the GOOD examples above. Focus your questions on what this specific role actually requires.
 
 Job context:
 - Stack: {stack_str}

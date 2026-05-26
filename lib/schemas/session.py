@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class SessionConfig(BaseModel):
     job_description: str = Field(min_length=50, max_length=10_000)
-    domain: Literal["frontend", "backend", "data_ml", "devops", "system_design", "behavioral"]
+    domain: Literal["frontend", "backend", "data_ml", "devops", "system_design", "behavioral"] = "backend"
     difficulty: Literal["easy", "medium", "hard"] = "medium"
     response_length: Literal["concise", "detailed"] = "detailed"
     interviewer_persona: Literal["strict", "neutral", "friendly"] = "neutral"

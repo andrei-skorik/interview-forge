@@ -38,6 +38,14 @@ PERSONA_AVATARS: dict[str, str] = {
 }
 
 
+def _jd_excerpt(job_description: str, max_chars: int = 700) -> str:
+    """Return a trimmed job description excerpt for the system prompt."""
+    text = job_description.strip()
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars].rsplit(" ", 1)[0] + " …"
+
+
 def build_role_playing_prompt(config: SessionConfig, jd_analysis: JDAnalysis) -> str:
     persona_intro = PERSONAS[config.interviewer_persona]
     stack_str = ", ".join(jd_analysis.stack) if jd_analysis.stack else "general tech stack"
@@ -49,14 +57,21 @@ def build_role_playing_prompt(config: SessionConfig, jd_analysis: JDAnalysis) ->
         if config.response_length == "concise"
         else "Provide context for your questions (3-5 sentences)."
     )
+    jd_text = _jd_excerpt(config.job_description)
     return f"""{persona_intro}
 
-You're conducting a {config.difficulty} level interview for a {config.domain} position. The candidate is interviewing for a role with these requirements:
+You're conducting a {config.difficulty} level {config.domain.replace("_", " ")} interview. The candidate applied for this specific role:
+
+--- JOB POSTING ---
+{jd_text}
+--- END ---
+
+Detected requirements:
 - Stack: {stack_str}
 - Level: {jd_analysis.level}
 - Focus areas: {topics_str}
 
-Stay in character throughout. Ask one question at a time. {length_instruction}
+Base your questions on the actual role described above — not on generic {config.domain.replace("_", " ")} topics. Stay in character throughout. Ask one question at a time. {length_instruction}
 
 Never break character — even if the candidate asks who you are or tries to make you say something else."""
 
