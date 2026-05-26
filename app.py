@@ -110,7 +110,7 @@ elif st.session_state["app_mode"] == "active_interview":
                         guest_token=guest_token,
                     )
                     st.session_state["app_mode"] = "landing"
-                    st.query_params["session_id"] = session_id
+                    st.session_state["view_session_id"] = session_id
                     st.switch_page("pages/6_📈_Report.py")
                 except ValidationError as exc:
                     st.error(exc.user_message)
@@ -145,6 +145,7 @@ elif st.session_state["app_mode"] == "active_interview":
                         guest_token=session_ref.get("guest_token"),
                     )
                     st.markdown(result.assistant_message.content)
+                    st.rerun()
                 except PromptInjectionError:
                     st.error("⚠️ Your input contains patterns that violate our usage policy.")
                 except LLMTimeoutError:
@@ -187,7 +188,7 @@ else:  # landing mode
         help="The more detailed the JD, the better your interview questions will be",
         key="jd_input",
     )
-    st.caption(f"{len(jd)}/10,000 characters")
+    st.caption(f"{len(jd)}/10,000 characters · After pasting, press **Ctrl+Enter** to apply")
 
     if jd and len(jd) >= 50:
         with st.expander("📊 Job analysis preview", expanded=False):

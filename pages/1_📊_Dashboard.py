@@ -2,12 +2,32 @@ import streamlit as st
 
 st.set_page_config(page_title="Dashboard", page_icon="📊", layout="wide")
 
+import datetime as dt  # noqa: E402
 from uuid import UUID  # noqa: E402
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError  # noqa: E402
 
 from lib.auth.session import get_access_token, get_current_user_id, is_authenticated  # noqa: E402
 from lib.db.sessions import list_user_sessions  # noqa: E402
 from lib.openrouter.cost_calculator import format_eur  # noqa: E402
 from lib.schemas.session import SessionFilters  # noqa: E402
+
+# ── Timezone helpers ───────────────────────────────────────────────────────────
+_TIMEZONE_OPTIONS: dict[str, str] = {
+    "UTC (UTC+0)": "UTC",
+    "London (UTC+0/+1)": "Europe/London",
+    "Berlin / Paris / Warsaw (UTC+1/+2)": "Europe/Berlin",
+    "Helsinki / Tallinn / Riga (UTC+2/+3)": "Europe/Helsinki",
+    "Moscow (UTC+3)": "Europe/Moscow",
+}
+_UTC = ZoneInfo("UTC")
+
+
+def _fmt_local(ts: dt.datetime, tz: ZoneInfo) -> str:
+    """Convert a UTC (or naive) datetime to local timezone for display."""
+    if ts.tzinfo is None:
+        ts = ts.replace(tzinfo=_UTC)
+    return ts.astimezone(tz).strftime("%Y-%m-%d %H:%M")
+
 
 if not is_authenticated():
     st.warning("Please sign in to view your dashboard.")
@@ -49,10 +69,21 @@ with st.sidebar:
     date_from = None
     date_to = None
     if isinstance(date_range, (list, tuple)) and len(date_range) == 2:
-        import datetime as dt
-
         date_from = dt.datetime.combine(date_range[0], dt.time.min)
         date_to = dt.datetime.combine(date_range[1], dt.time.max)
+
+    st.divider()
+    tz_label: str = st.selectbox(
+        "Timezone",
+        options=list(_TIMEZONE_OPTIONS.keys()),
+        index=2,  # default: Berlin / Paris / Warsaw (UTC+1/+2)
+        key="dashboard_tz",
+        help="All times are stored in UTC. Select your local timezone to convert them.",
+    )  # type: ignore[assignment]
+    try:
+        _user_tz = ZoneInfo(_TIMEZONE_OPTIONS[tz_label])
+    except ZoneInfoNotFoundError:
+        _user_tz = _UTC
 
     page_num: int = st.session_state.get("dashboard_page", 1)
 
@@ -122,7 +153,7 @@ else:
                 st.markdown(
                     f"**{jd_preview}** — {session.difficulty.title()} · {session.prompt_technique.replace('_', ' ').title()}"
                 )
-                st.caption(session.created_at.strftime("%Y-%m-%d %H:%M"))
+                st.caption(_fmt_local(session.created_at, _user_tz))
             with col2:
                 badge = status_badge_map.get(session.status, "❓")
                 st.markdown(f"{badge} {session.status.replace('_', ' ').title()}")
@@ -132,7 +163,7 @@ else:
                 if session.status in ("completed", "completed_without_eval") and st.button(
                     "View report", key=f"view_{session.id}"
                 ):
-                    st.query_params["session_id"] = str(session.id)
+                    st.session_state["view_session_id"] = str(session.id)
                     st.switch_page("pages/6_📈_Report.py")
         st.divider()
 

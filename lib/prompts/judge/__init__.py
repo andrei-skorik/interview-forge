@@ -32,7 +32,7 @@ logger = structlog.get_logger(__name__)
 
 JUDGE_MODEL = "openai/gpt-5-mini"
 JUDGE_TEMPERATURE = 0.3
-JUDGE_MAX_TOKENS = 4096
+JUDGE_MAX_TOKENS = 16000
 
 
 def build_judge_context(

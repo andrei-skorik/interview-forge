@@ -46,7 +46,6 @@ def save_evaluation(
 ) -> None:
     """Insert a per-question evaluation row via service role."""
     service_client = get_service_client()
-    average_score = (correctness_score + depth_score + structure_score + communication_score) / 4
     service_client.table("evaluations").insert(
         {
             "session_id": str(session_id),
@@ -56,7 +55,7 @@ def save_evaluation(
             "depth_score": depth_score,
             "structure_score": structure_score,
             "communication_score": communication_score,
-            "average_score": average_score,
+            # average_score is GENERATED ALWAYS AS — cannot be inserted manually
             "correctness_reasoning": correctness_reasoning,
             "depth_reasoning": depth_reasoning,
             "structure_reasoning": structure_reasoning,
@@ -172,7 +171,7 @@ def get_full_report(
 
     report_resp = (
         service_client.table("session_reports")
-        .select("session_id, overall_score, readiness_level, summary_report, detailed_report")
+        .select("session_id, overall_score, readiness_level, summary_json, detailed_json")
         .eq("session_id", str(session_id))
         .execute()
     )
@@ -184,8 +183,8 @@ def get_full_report(
         session_id=r["session_id"],
         overall_score=float(r["overall_score"]),
         readiness_level=r["readiness_level"],
-        summary_json=r.get("summary_report") or {},
-        detailed_json=r.get("detailed_report") or {},
+        summary_json=r.get("summary_json") or {},
+        detailed_json=r.get("detailed_json") or {},
     )
 
 

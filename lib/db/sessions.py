@@ -370,9 +370,13 @@ def finish_interview(
         )
     )
 
+    import time
+
+    t0 = time.monotonic()
     summary, detailed = asyncio.run(
         evaluate_session(session_with_msgs, session_with_msgs.messages, jd_analysis)
     )
+    generation_time_ms = int((time.monotonic() - t0) * 1000)
 
     degraded = detailed.overall_assessment.overall_score == 5.0 and all(
         s.area == "Evaluation unavailable" for s in detailed.weaknesses
@@ -389,24 +393,26 @@ def finish_interview(
         cb = calculate_cost(judge_input_tokens, judge_output_tokens, judge_pricing, eur_rate)
         judge_cost_usd_cents = cb.usd_cents
 
-    # Save report
-    service_client.table("session_reports").insert(
+    # Save report — upsert so retries after partial failure don't duplicate
+    service_client.table("session_reports").upsert(
         {
             "session_id": str(session_id),
             "overall_score": summary.overall_score,
             "readiness_level": summary.readiness_level,
-            "verdict": summary.verdict,
-            "top_strengths": summary.top_strengths,
-            "top_weaknesses": summary.top_weaknesses,
-            "next_actions": [a.model_dump() for a in summary.next_actions],
-            "detailed_report": detailed.model_dump(),
-            "summary_report": summary.model_dump(),
+            "strengths": summary.top_strengths,
+            "weaknesses": summary.top_weaknesses,
+            "improvement_plan": [a.model_dump() for a in summary.next_actions],
+            "summary_json": summary.model_dump(),
+            "detailed_json": detailed.model_dump(),
             "judge_model": JUDGE_MODEL,
-            "judge_cost_usd_cents": judge_cost_usd_cents,
-        }
+            "cost_usd_cents": judge_cost_usd_cents,
+            "generation_time_ms": generation_time_ms,
+            "degraded_evaluation": degraded,
+        },
+        on_conflict="session_id",
     ).execute()
 
-    # Save per-question evaluations
+    # Save per-question evaluations (best-effort — don't fail the whole report)
     assistant_msgs = [m for m in session_with_msgs.messages if m.role == "assistant"]
     pairs = list(zip(assistant_msgs, user_messages, strict=False))
     per_eval_cost = math.ceil(judge_cost_usd_cents / max(len(pairs), 1))
@@ -416,21 +422,24 @@ def finish_interview(
         if idx < 0 or idx >= len(pairs):
             continue
         q_msg, a_msg = pairs[idx]
-        save_evaluation(
-            session_id=session_id,
-            question_message_id=q_msg.id,
-            answer_message_id=a_msg.id,
-            correctness_score=q_eval.scores.correctness,
-            depth_score=q_eval.scores.depth,
-            structure_score=q_eval.scores.structure,
-            communication_score=q_eval.scores.communication,
-            correctness_reasoning=q_eval.reasoning.correctness,
-            depth_reasoning=q_eval.reasoning.depth,
-            structure_reasoning=q_eval.reasoning.structure,
-            communication_reasoning=q_eval.reasoning.communication,
-            judge_model=JUDGE_MODEL,
-            cost_usd_cents=per_eval_cost,
-        )
+        try:
+            save_evaluation(
+                session_id=session_id,
+                question_message_id=q_msg.id,
+                answer_message_id=a_msg.id,
+                correctness_score=q_eval.scores.correctness,
+                depth_score=q_eval.scores.depth,
+                structure_score=q_eval.scores.structure,
+                communication_score=q_eval.scores.communication,
+                correctness_reasoning=q_eval.reasoning.correctness,
+                depth_reasoning=q_eval.reasoning.depth,
+                structure_reasoning=q_eval.reasoning.structure,
+                communication_reasoning=q_eval.reasoning.communication,
+                judge_model=JUDGE_MODEL,
+                cost_usd_cents=per_eval_cost,
+            )
+        except Exception:
+            pass  # evaluation rows are non-critical; report already saved
 
     final_status = "completed_without_eval" if degraded else "completed"
     prev_cost = session_with_msgs.total_cost_usd_cents

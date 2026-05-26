@@ -14,9 +14,12 @@ from lib.ui.report import render_detailed, render_summary  # noqa: E402
 session_id_str: str | None = st.query_params.get("session_id")
 share_token: str | None = st.query_params.get("share_token")
 
-# Also accept session_id from session state (set when navigating from End interview)
+# Also accept session_id from session state (set when navigating from Dashboard or End interview)
 if not session_id_str:
-    session_id_str = st.session_state.get("current_session_id")
+    session_id_str = (
+        st.session_state.get("view_session_id")
+        or st.session_state.get("current_session_id")
+    )
 
 if not session_id_str:
     st.info("Open a report from the Dashboard by clicking 'View report' on a completed session.")
