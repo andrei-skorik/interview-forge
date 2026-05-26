@@ -113,7 +113,7 @@ elif st.session_state["app_mode"] == "active_interview":
                     st.session_state["view_session_id"] = session_id
                     st.switch_page("pages/6_📈_Report.py")
                 except ValidationError as exc:
-                    st.error(exc.user_message)
+                    st.error(exc.detail or exc.user_message)
                 except Exception:
                     st.error("Could not generate report. Please try again.")
 

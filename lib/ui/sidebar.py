@@ -105,6 +105,9 @@ def render_session_config_sidebar() -> None:
     }
 
 
+MIN_QUESTIONS_TO_END = 3
+
+
 def render_interview_sidebar(session_id: str, session_data: dict[str, Any]) -> bool:
     """Render sidebar during active interview. Returns True if user clicked End interview."""
     persona = session_data.get("persona", "neutral")
@@ -125,10 +128,20 @@ def render_interview_sidebar(session_id: str, session_data: dict[str, Any]) -> b
 
     st.divider()
 
+    can_end = message_count >= MIN_QUESTIONS_TO_END
+    if not can_end:
+        remaining = MIN_QUESTIONS_TO_END - message_count
+        st.info(
+            f"Answer **{remaining} more question{'s' if remaining > 1 else ''}** "
+            f"to finish ({message_count}/{MIN_QUESTIONS_TO_END} done).",
+            icon="ℹ️",
+        )
+
     end_clicked: bool = st.button(
         "⏹️ End interview",
         type="primary",
         use_container_width=True,
+        disabled=not can_end,
         key="end_interview_btn",
     )
     return end_clicked
