@@ -178,8 +178,8 @@ def _interview_page() -> None:
 
         col1, col2 = st.columns([2, 1])
         with col1:
-            st.title("🎯 Practice EU tech interviews with AI")
-            st.markdown("Get personalised questions and structured feedback in 20 minutes.")
+            st.title("🎯 Practice job interviews with AI")
+            st.markdown("Get your personalised questions and structured feedback.")
         with col2:
             _user_id = get_current_user_id()
             if _user_id:
