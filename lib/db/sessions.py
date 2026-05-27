@@ -12,7 +12,7 @@ from lib.exceptions import NotFoundError, RateLimitError, UnauthorizedError, Val
 from lib.openrouter.chat import chat_complete, get_message_content, get_usage
 from lib.openrouter.cost_calculator import calculate_cost
 from lib.openrouter.models import get_models_pricing
-from lib.prompts.interviewer import get_interviewer_prompt
+from lib.prompts.interviewer import get_interviewer_prompt, postprocess_llm_response
 from lib.prompts.jd_analyzer import analyze_jd_cached
 from lib.prompts.judge import evaluate_session
 from lib.prompts.security.input_validator import validate_input
@@ -172,6 +172,9 @@ def create_session(
         )
     )
     assistant_text = get_message_content(llm_resp)
+    assistant_text = postprocess_llm_response(
+        assistant_text, config.prompt_technique, str(session_id)
+    )
     input_tokens, output_tokens = get_usage(llm_resp)
 
     # Cost calculation

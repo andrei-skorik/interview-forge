@@ -12,7 +12,7 @@ from lib.openrouter.chat import chat_complete, get_message_content, get_usage
 from lib.openrouter.cost_calculator import calculate_cost
 from lib.openrouter.embeddings import get_embedding
 from lib.openrouter.models import get_models_pricing
-from lib.prompts.interviewer import get_interviewer_prompt
+from lib.prompts.interviewer import get_interviewer_prompt, postprocess_llm_response
 from lib.prompts.security.input_validator import validate_input
 from lib.prompts.security.output_validator import get_safe_fallback_question, validate_output
 from lib.schemas.jd_analysis import JDAnalysis
@@ -248,6 +248,9 @@ def send_message(
         )
     )
     assistant_text = get_message_content(llm_resp)
+    assistant_text = postprocess_llm_response(
+        assistant_text, config.prompt_technique, str(session_id)
+    )
     input_tokens, output_tokens = get_usage(llm_resp)
 
     # Output validation
