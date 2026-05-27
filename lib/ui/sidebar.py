@@ -26,11 +26,13 @@ def render_session_config_sidebar() -> None:
     )
 
     response_length = st.radio(
-        "Response length",
+        "Question length",
         options=["concise", "detailed"],
-        captions=["Short focused answers", "Detailed with context"],
+        captions=["Short, direct (1–2 sentences)", "With context (2–5 sentences)"],
         horizontal=True,
         key="cfg_response_length",
+        help="Applies to Zero Shot, Few Shot and Role Playing only. "
+        "Chain of Thought and Structured Output are not affected.",
     )
 
     st.subheader("Interviewer")
