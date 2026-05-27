@@ -27,6 +27,21 @@ if not session_id_str:
         st.switch_page("pages/1_📊_Dashboard.py")
     st.stop()
 
+# ── Auth gate (no share_token = must be signed in) ─────────────────────────────
+if not get_access_token() and not share_token:
+    st.title("📈 Interview Report")
+    st.divider()
+    _, col, _ = st.columns([1, 2, 1])
+    with col:
+        st.markdown("### 🔐 Sign in to see your reports")
+        st.caption("Your interview results are saved to your account.")
+        st.markdown("")
+        if st.button("🔑 Sign in", type="primary", use_container_width=True):
+            st.switch_page("app.py")
+        if st.button("← Back to home", use_container_width=True):
+            st.switch_page("app.py")
+    st.stop()
+
 # ── Load report ────────────────────────────────────────────────────────────────
 with st.spinner("Loading report..."):
     try:
@@ -43,14 +58,10 @@ with st.spinner("Loading report..."):
             if st.button("🔑 Sign in", type="primary"):
                 st.switch_page("app.py")
             st.stop()
-        st.error(f"Could not load report: {exc}")
-        report = None
-
-if report is None:
-    st.error("Report not found or you don't have access.")
-    if st.button("← Back to home"):
-        st.switch_page("app.py")
-    st.stop()
+        st.warning("⚠️ Report not found or you don't have access to it.")
+        if st.button("← Back to home"):
+            st.switch_page("app.py")
+        st.stop()
 
 # ── Check if still evaluating (empty JSON blobs) ──────────────────────────────
 if not report.summary_json or not report.detailed_json:
