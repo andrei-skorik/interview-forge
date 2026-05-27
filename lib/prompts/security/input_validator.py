@@ -11,7 +11,9 @@ from lib.schemas.security import ValidationResult
 logger = structlog.get_logger(__name__)
 
 INJECTION_PATTERNS: list[re.Pattern[str]] = [
-    re.compile(r"ignore\s+(?:(?:previous|all|above)\s+)+instructions?", re.IGNORECASE),
+    # Allow 0-4 intervening words so "ignore all previous SYSTEM instructions" is caught.
+    # \w+ excludes punctuation — avoids false positives like "ignore this bug, write instructions".
+    re.compile(r"ignore\s+(?:\w+\s+){0,4}instructions?", re.IGNORECASE),
     re.compile(r"you\s+are\s+now\s+(a|an)", re.IGNORECASE),
     re.compile(r"forget\s+everything", re.IGNORECASE),
     re.compile(r"<\s*/?\s*system\s*>", re.IGNORECASE),
