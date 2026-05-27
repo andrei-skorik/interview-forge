@@ -57,8 +57,9 @@ def get_models_pricing() -> ModelsPricing:
             continue
         prompt_price = float(row["prompt_price_per_million_usd"])
         completion_price = float(row["completion_price_per_million_usd"])
-        # Estimate: typical session = 5K input + 2K output tokens
-        typical_usd = (5000 / 1_000_000) * prompt_price + (2000 / 1_000_000) * completion_price
+        # Estimate: typical session = 20K input + 4K output tokens
+        # (system prompt ~1K × 10 turns + growing history, ~300 tokens output × 10 turns)
+        typical_usd = (20_000 / 1_000_000) * prompt_price + (4_000 / 1_000_000) * completion_price
         est_eur_cents = ceil(typical_usd * 100 * rate)
 
         models.append(

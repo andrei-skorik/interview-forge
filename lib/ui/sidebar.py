@@ -58,6 +58,7 @@ def render_session_config_sidebar() -> None:
     )
 
     with st.expander("⚙️ Model settings"):
+        pricing_by_id: dict = {}
         try:
             pricing = get_models_pricing()
             model_options = [m.id for m in pricing.models]
@@ -65,6 +66,7 @@ def render_session_config_sidebar() -> None:
                 m.id: f"{m.display_name} (~{format_eur(m.estimated_session_cost_eur_cents)}/session)"
                 for m in pricing.models
             }
+            pricing_by_id = {m.id: m for m in pricing.models}
         except Exception:
             model_options = ["openai/gpt-5-mini", "openai/gpt-5-nano"]
             model_labels = {
@@ -78,6 +80,12 @@ def render_session_config_sidebar() -> None:
             format_func=lambda x: model_labels.get(x, x),
             key="cfg_llm_model",
         )
+        if llm_model in pricing_by_id:
+            m = pricing_by_id[llm_model]
+            st.caption(
+                f"${m.prompt_price_per_million_usd:.3f} input · "
+                f"${m.completion_price_per_million_usd:.3f} output per M tokens"
+            )
         if "nano" in llm_model:
             st.caption(
                 "⚠️ GPT-nano is fast and cheap, but prompt techniques "
