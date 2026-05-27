@@ -12,3 +12,6 @@ class JDAnalysis(BaseModel):
     key_topics: list[str]
     company_type: Literal["startup", "tech_startup", "enterprise", "agency", "unknown"]
     confidence: float = Field(ge=0.0, le=1.0)
+    # Generated once in create_session(); stored in sessions.jd_analysis JSON.
+    # Used by few_shot prompt builder to produce domain-specific examples.
+    few_shot_examples: list[str] = Field(default_factory=list)

@@ -91,6 +91,18 @@ def create_session(
     jd_analysis: JDAnalysis = analyze_jd_cached(config.job_description)
     effective_config = config.model_copy(update={"domain": jd_analysis.suggested_domain})
 
+    # For few_shot technique: generate role-specific example questions once.
+    # Stored in jd_analysis.few_shot_examples (persisted in sessions.jd_analysis JSON)
+    # so send_message() reuses them without extra LLM calls.
+    if config.prompt_technique == "few_shot" and not jd_analysis.few_shot_examples:
+        from lib.prompts.interviewer.few_shot import generate_few_shot_examples
+
+        examples = asyncio.run(
+            generate_few_shot_examples(jd_analysis, difficulty=config.difficulty)
+        )
+        if examples:
+            jd_analysis = jd_analysis.model_copy(update={"few_shot_examples": examples})
+
     # Rate limiting
     limiter = get_rate_limiter()
     if user_id is not None:
