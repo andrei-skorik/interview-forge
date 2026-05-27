@@ -78,6 +78,13 @@ def render_session_config_sidebar() -> None:
             format_func=lambda x: model_labels.get(x, x),
             key="cfg_llm_model",
         )
+        if "nano" in llm_model:
+            st.caption(
+                "⚠️ GPT-nano is fast and cheap, but prompt techniques "
+                "(Few Shot, Chain of Thought, Role Playing) have limited effect — "
+                "the model lacks capacity to follow nuanced instructions. "
+                "Use **GPT-mini** for best interview quality."
+            )
         temperature = st.slider("Temperature", 0.0, 1.5, 0.7, 0.05, key="cfg_temperature")
         max_tokens = st.slider("Max tokens", 256, 4096, 2048, 128, key="cfg_max_tokens")
 
