@@ -23,7 +23,7 @@ class SessionConfig(BaseModel):
     llm_model: Literal["openai/gpt-5-mini", "openai/gpt-5-nano"] = "openai/gpt-5-mini"
     temperature: float = Field(0.7, ge=0.0, le=1.5)
     top_p: float = Field(1.0, ge=0.0, le=1.0)
-    max_tokens: int = Field(1024, ge=256, le=4096)
+    max_tokens: int = Field(2048, ge=256, le=4096)
     frequency_penalty: float = Field(0.0, ge=-2.0, le=2.0)
     presence_penalty: float = Field(0.0, ge=-2.0, le=2.0)
 
