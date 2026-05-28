@@ -24,7 +24,7 @@ Return ONLY valid JSON with this exact structure:
   "confidence": 0.0 to 1.0
 }
 
-Be precise. Stack should include programming languages, frameworks, tools mentioned. Key topics should reflect what the interview will focus on."""
+Be concise. Stack: up to 10 short items (e.g. "Python", "Docker"). Key topics: up to 8 short phrases. No explanations."""
 
 
 async def analyze_jd(
@@ -43,7 +43,7 @@ async def analyze_jd(
                 },
             ],
             temperature=0.1,
-            max_tokens=1024,
+            max_tokens=2048,
             response_format={"type": "json_object"},
         )
         content = get_message_content(response)
