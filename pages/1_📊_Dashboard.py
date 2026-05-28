@@ -1,7 +1,5 @@
 import streamlit as st
 
-st.set_page_config(page_title="Dashboard", page_icon="📊", layout="wide")
-
 import datetime as dt  # noqa: E402
 from uuid import UUID  # noqa: E402
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError  # noqa: E402

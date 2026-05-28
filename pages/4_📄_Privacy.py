@@ -1,7 +1,5 @@
 import streamlit as st
 
-st.set_page_config(page_title="Privacy Policy", page_icon="🔒", layout="centered")
-
 try:
     admin_email: str = st.secrets.get("ADMIN_EMAIL", "privacy@interviewforge.app")
 except Exception:

@@ -2,8 +2,6 @@ import json
 
 import streamlit as st
 
-st.set_page_config(page_title="Settings", page_icon="⚙️", layout="centered")
-
 from uuid import UUID  # noqa: E402
 
 from lib.auth.gdpr import delete_account, export_user_data  # noqa: E402

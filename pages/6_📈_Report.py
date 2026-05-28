@@ -2,8 +2,6 @@ import json
 
 import streamlit as st
 
-st.set_page_config(page_title="Interview Report", page_icon="📈", layout="wide")
-
 from uuid import UUID  # noqa: E402
 
 from lib.auth.session import clear_session, get_access_token, get_current_user_id  # noqa: E402

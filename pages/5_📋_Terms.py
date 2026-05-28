@@ -1,7 +1,5 @@
 import streamlit as st
 
-st.set_page_config(page_title="Terms of Service", page_icon="📋", layout="centered")
-
 st.title("📋 Terms of Service")
 st.caption("Last updated: 2026-05-21")
 

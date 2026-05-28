@@ -1,7 +1,5 @@
 import streamlit as st
 
-st.set_page_config(page_title="Admin", page_icon="🔒", layout="wide")
-
 from lib.auth.session import (  # noqa: E402
     get_access_token,
     get_current_user_id,
