@@ -96,14 +96,14 @@ def render_session_config_sidebar() -> None:
         temperature = st.slider("Temperature", 0.0, 1.5, 0.7, 0.05, key="cfg_temperature")
         max_tokens = st.slider("Max tokens", 256, 4096, 2048, 128, key="cfg_max_tokens")
 
-        with st.expander("🔬 Advanced"):
-            top_p = st.slider("Top P", 0.0, 1.0, 1.0, 0.05, key="cfg_top_p")
-            frequency_penalty = st.slider(
-                "Frequency penalty", -2.0, 2.0, 0.0, 0.1, key="cfg_freq_penalty"
-            )
-            presence_penalty = st.slider(
-                "Presence penalty", -2.0, 2.0, 0.0, 0.1, key="cfg_pres_penalty"
-            )
+        st.caption("🔬 Advanced")
+        top_p = st.slider("Top P", 0.0, 1.0, 1.0, 0.05, key="cfg_top_p")
+        frequency_penalty = st.slider(
+            "Frequency penalty", -2.0, 2.0, 0.0, 0.1, key="cfg_freq_penalty"
+        )
+        presence_penalty = st.slider(
+            "Presence penalty", -2.0, 2.0, 0.0, 0.1, key="cfg_pres_penalty"
+        )
 
     st.session_state["session_config_form"] = {
         # domain is intentionally omitted — auto-detected from JD in create_session()
