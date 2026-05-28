@@ -43,7 +43,7 @@ async def analyze_jd(
                 },
             ],
             temperature=0.1,
-            max_tokens=512,
+            max_tokens=1024,
             response_format={"type": "json_object"},
         )
         content = get_message_content(response)

@@ -38,6 +38,18 @@ class JDAnalysis(BaseModel):
         if v in ("startup", "tech_startup", "enterprise", "agency", "unknown"):
             return v
         return "unknown"
+
+    @field_validator("confidence", mode="before")
+    @classmethod
+    def normalize_confidence(cls, v: Any) -> float:
+        try:
+            f = float(v)
+        except (TypeError, ValueError):
+            return 0.0
+        # LLM sometimes returns percentage (e.g. 90) instead of fraction (0.9)
+        if f > 1.0:
+            f = f / 100.0
+        return max(0.0, min(1.0, f))
     # Generated once in create_session(); stored in sessions.jd_analysis JSON.
     # Used by few_shot prompt builder to produce domain-specific examples.
     few_shot_examples: list[str] = Field(default_factory=list)
