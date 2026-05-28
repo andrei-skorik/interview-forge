@@ -71,7 +71,7 @@ with st.sidebar:
     date_range = st.date_input("Date range", value=(), key="date_range")
     date_from = None
     date_to = None
-    if isinstance(date_range, (list, tuple)) and len(date_range) == 2:
+    if isinstance(date_range, list | tuple) and len(date_range) == 2:
         date_from = dt.datetime.combine(date_range[0], dt.time.min)
         date_to = dt.datetime.combine(date_range[1], dt.time.max)
 

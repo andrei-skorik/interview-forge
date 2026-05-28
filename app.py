@@ -15,7 +15,6 @@ from lib.auth.session import (  # noqa: E402
     clear_session,
     get_access_token,
     get_current_user_id,
-    get_refresh_token,
     is_authenticated,
     is_token_expired,
     set_session,

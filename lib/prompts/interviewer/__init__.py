@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import json
-import structlog
 from collections.abc import Callable
+
+import structlog
 
 from lib.prompts.interviewer.chain_of_thought import (
     build_chain_of_thought_prompt,

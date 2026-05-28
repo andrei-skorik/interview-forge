@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import math
 import secrets
 from datetime import datetime, timedelta
@@ -439,7 +440,7 @@ def finish_interview(
         if idx < 0 or idx >= len(pairs):
             continue
         q_msg, a_msg = pairs[idx]
-        try:
+        with contextlib.suppress(Exception):  # non-critical; report already saved
             save_evaluation(
                 session_id=session_id,
                 question_message_id=q_msg.id,
@@ -455,8 +456,6 @@ def finish_interview(
                 judge_model=JUDGE_MODEL,
                 cost_usd_cents=per_eval_cost,
             )
-        except Exception:
-            pass  # evaluation rows are non-critical; report already saved
 
     final_status = "completed_without_eval" if degraded else "completed"
     prev_cost = session_with_msgs.total_cost_usd_cents
