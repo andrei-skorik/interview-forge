@@ -1,18 +1,18 @@
+import datetime as dt
+from uuid import UUID
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
 import streamlit as st
 
-import datetime as dt  # noqa: E402
-from uuid import UUID  # noqa: E402
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError  # noqa: E402
-
-from lib.auth.session import (  # noqa: E402
+from lib.auth.session import (
     clear_session,
     get_access_token,
     get_current_user_id,
     is_authenticated,
 )
-from lib.db.sessions import list_user_sessions  # noqa: E402
-from lib.openrouter.cost_calculator import format_eur  # noqa: E402
-from lib.schemas.session import SessionFilters  # noqa: E402
+from lib.db.sessions import list_user_sessions
+from lib.openrouter.cost_calculator import format_eur
+from lib.schemas.session import SessionFilters
 
 # ── Timezone helpers ───────────────────────────────────────────────────────────
 _TIMEZONE_OPTIONS: dict[str, str] = {

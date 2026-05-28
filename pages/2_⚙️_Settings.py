@@ -1,12 +1,11 @@
 import json
+from uuid import UUID
 
 import streamlit as st
 
-from uuid import UUID  # noqa: E402
-
-from lib.auth.gdpr import delete_account, export_user_data  # noqa: E402
-from lib.auth.login import sign_out  # noqa: E402
-from lib.auth.session import (  # noqa: E402
+from lib.auth.gdpr import delete_account, export_user_data
+from lib.auth.login import sign_out
+from lib.auth.session import (
     clear_session,
     get_access_token,
     get_current_user,

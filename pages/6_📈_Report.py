@@ -1,12 +1,11 @@
 import json
+from uuid import UUID
 
 import streamlit as st
 
-from uuid import UUID  # noqa: E402
-
-from lib.auth.session import clear_session, get_access_token, get_current_user_id  # noqa: E402
-from lib.db.evaluations import get_full_report  # noqa: E402
-from lib.ui.report import render_detailed, render_summary  # noqa: E402
+from lib.auth.session import clear_session, get_access_token, get_current_user_id
+from lib.db.evaluations import get_full_report
+from lib.ui.report import render_detailed, render_summary
 
 # ── Read URL params ────────────────────────────────────────────────────────────
 session_id_str: str | None = st.query_params.get("session_id")
