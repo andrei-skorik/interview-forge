@@ -255,8 +255,8 @@ def _interview_page() -> None:
                             )
                         with col_b:
                             st.markdown("**Stack detected:**")
-                            for tech in analysis.stack[:5]:
-                                st.badge(tech)
+                            if analysis.stack:
+                                st.markdown(" · ".join(analysis.stack[:5]))
                     except Exception:
                         st.warning("Could not analyse JD preview.")
 
