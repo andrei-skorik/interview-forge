@@ -120,7 +120,7 @@ def export_user_data(user_id: UUID, access_token: str) -> dict[str, Any]:
 
         report_resp = (
             service_client.table("session_reports")
-            .select("overall_score, readiness_level, verdict")
+            .select("overall_score, readiness_level, summary_json, detailed_json")
             .eq("session_id", sid)
             .execute()
         )
