@@ -1,6 +1,21 @@
 # InterviewForge — Launch Guide
 
-An AI-powered mock interview trainer for the EU IT job market. Built with Streamlit, it provides multi-turn interview sessions, LLM-based evaluation, and structured performance reports.
+## What this is
+
+A production-grade AI mock interview trainer for the EU IT job market.
+Users paste a job description, get interviewed by an LLM across 5 prompting
+techniques (Zero-Shot, Few-Shot, Chain-of-Thought, Role-Playing, Structured
+Output), and receive a structured performance report with per-question
+scoring from an LLM-as-a-judge pipeline.
+
+Built as a full-stack application with auth, persistent session history,
+vector-based JD analysis and question deduplication, prompt-injection
+defenses, and an admin panel with cost tracking.
+
+Stack: Python · Streamlit · Supabase (pgvector + Auth + RLS) · OpenRouter
+(multi-model) · Pydantic v2 · pytest · GitHub Actions CI/CD
+
+![Interview report with radar chart](screenshots/report.png)
 
 ---
 
