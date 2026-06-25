@@ -57,7 +57,7 @@ def login_form() -> None:
                 st.session_state["app_mode"] = "landing"
                 st.rerun()
             except UnauthorizedError as e:
-                st.error(e.user_message)
+                st.error(e.detail or e.user_message)
 
     if st.button("Forgot password?", key="forgot_password"):
         st.session_state["show_reset_form"] = True
